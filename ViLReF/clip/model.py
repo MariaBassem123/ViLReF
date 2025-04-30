@@ -307,7 +307,8 @@ class VisualTransformer(nn.Module):
 
         return x
 
-    def forward(self, x: torch.Tensor, mask_ratio: float = 0.0):
+    def forward(self, x: torch.Tensor, mask_ratio: float = 0.0, return_all_features=False):
+        # converts the input image into a sequence of tokens (patch embeddings)
         x = self.conv1(x)  # shape = [*, width, grid, grid]
         x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
         x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
@@ -321,9 +322,16 @@ class VisualTransformer(nn.Module):
 
         x = x.permute(1, 0, 2)  # NLD -> LND
         x = self.transformer(x)
+
+        # Optionally return all features before projection
+        if return_all_features:
+            x=self.ln_post(x)
+            x = x.permute(1, 0, 2)  # LND -> NLD
+            return x
+        
         x = x.permute(1, 0, 2)  # LND -> NLD
 
-        x = self.ln_post(x[:, 0, :])
+        x = self.ln_post(x[:, 0, :]) # Only the CLS token
 
         if self.proj is not None:
             x = x @ self.proj
@@ -434,11 +442,11 @@ class CLIP(nn.Module):
     def dtype(self):
         return self.visual.conv1.weight.dtype
 
-    def encode_image(self, image, mask_ratio=0):
+    def encode_image(self, image, mask_ratio=0, return_all_features=True):
         if isinstance(self.visual, ModifiedResNet):
             # mask_ratio > 0 (FLIP strategy) is currently only implemented for VisualTransformer.
-            return self.visual(image.type(self.dtype))
-        return self.visual(image.type(self.dtype), mask_ratio)
+            return self.visual(image.type(self.dtype), return_all_features=return_all_features)
+        return self.visual(image.type(self.dtype), mask_ratio, return_all_features=return_all_features)
 
     def encode_image_featExt(self, image, mask_ratio=0):
         if isinstance(self.visual, ModifiedResNet):
