@@ -11,7 +11,7 @@ from torch.cuda.amp import autocast
 import torch.distributed as dist
 import sys
 
-from eval_multiLabelCls import eval_multiLabelCls_RN50, eval_multiLabelCls_ViT
+from  .eval_RFMiD import eval_multiLabelCls_RN50, eval_multiLabelCls_ViT # eval_multiLabelCls
 
 sys.path.append("../clip")
 from clip.model import convert_state_dict
