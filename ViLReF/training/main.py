@@ -17,13 +17,13 @@ from torch.cuda.amp import GradScaler
 from torch import nn
 
 sys.path.append("..")
-from clip import load
-from clip.model import convert_weights, convert_state_dict, resize_pos_embed, CLIP
-from training.train import train, evaluate
-from training.data import get_data
-from training.params import parse_args
-from training.logger import setup_primary_logging, setup_worker_logging
-from training.scheduler import cosine_lr
+from ViLReF.clip import load
+from ViLReF.clip.model import convert_weights, convert_state_dict, resize_pos_embed, CLIP
+from ViLReF.training.train import train, evaluate
+from ViLReF.training.data import get_data
+from ViLReF.training.params import parse_args
+from ViLReF.training.logger import setup_primary_logging, setup_worker_logging
+from ViLReF.training.scheduler import cosine_lr
 
 
 # Used by https://github.com/openai/CLIP/issues/83 but not below.
